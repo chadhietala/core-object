@@ -1,3 +1,4 @@
+'use strict';
 var assert = require('assert');
 var assignProperties = require('../lib/assign-properties');
 
@@ -11,39 +12,42 @@ describe('assignProperties', function() {
   });
 
   it('supports properties that do not conflict', function() {
-    var target = {};
+    function Klass() {}
+    Klass.__instanceMixin__ = {};
+    Klass.__protoMixin__ = {};
     var input  = { a: 1, b: 2, c: []};
 
-    assignProperties(target, input);
-    assert.deepEqual(target, input);
-
-    assert.deepEqual(target, input);
+    assignProperties(Klass, input);
+    assert.deepEqual(Klass.__instanceMixin__, input);
   });
 
   it('supports properties that conflict', function() {
-    var target = { a: 2, c: [1]};
+    function Klass() {}
+    Klass.__instanceMixin__ = { a: 2, c: [1]};
+    Klass.__protoMixin__ = {};
+
     var input  = { a: 1, b: 2, c: []};
 
-    assignProperties(target, input);
-    assert.deepEqual(target, input);
-
-    assert.deepEqual(target, input);
+    assignProperties(Klass, input);
+    assert.deepEqual(Klass.__instanceMixin__, input);
   });
 
   describe('super', function() {
     it('normal function', function() {
-      var target = { };
-      var input = { a: function() { } }
+      function Klass() {}
+      Klass.__instanceMixin__ = {};
+      Klass.__protoMixin__ = {};
+      var input = { a: function() { } };
 
-      assignProperties(target, input);
-      assert.deepEqual(target, input);
-
-      assert.deepEqual(target, input);
-      assert.equal(target.a, input.a);
+      assignProperties(Klass, input);
+      assert.deepEqual(Klass.__protoMixin__, input);
+      assert.equal(Klass.__protoMixin__.a, input.a);
     });
 
     it('function with super but no root', function() {
-      var target = { };
+      function Klass() {}
+      Klass.__instanceMixin__ = {};
+      Klass.__protoMixin__ = {};
       var input = {
         a: function() {
           this._super();
@@ -51,24 +55,27 @@ describe('assignProperties', function() {
         }
       };
 
-      assignProperties(target, input);
-      assert.equal(target.a(), 5);
+      assignProperties(Klass, input);
+      assert.equal(Klass.__protoMixin__.a(), 5);
     });
 
     it('function with super with root', function() {
-      var target = {
+      function Klass() {}
+      Klass.__instanceMixin__ = {};
+      Klass.__protoMixin__ = {
         a: function() {
           return 1;
         }
       };
+
       var input = {
         a: function() {
           return this._super() + 5;
         }
       };
 
-      assignProperties(target, input);
-      assert.equal(target.a(), 6);
+      assignProperties(Klass, input);
+      assert.equal(Klass.__protoMixin__.a(), 6);
     });
   });
 
@@ -81,7 +88,9 @@ describe('assignProperties', function() {
         warning = msg;
       }
 
-      var target = {
+      function Klass() {}
+      Klass.__instanceMixin__ = {};
+      Klass.__protoMixin__ = {
         a: function() {
           return 1;
         }
@@ -93,9 +102,9 @@ describe('assignProperties', function() {
         }
       };
 
-      assignProperties(target, input);
+      assignProperties(Klass, input);
 
-      assert.equal(target.a(), 6);
+      assert.equal(Klass.__protoMixin__.a(), 6);
       assert.equal(warning,
         'DEPRECATION: Calling this._super.a is deprecated. ' +
         'Please use this._super(args).');

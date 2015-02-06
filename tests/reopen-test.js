@@ -25,22 +25,27 @@ describe('reopen', function() {
   });
 
   it('can call super', function() {
-    var called = false;
+    var bazCalled = false,
+        superBaz = false;
 
     var Klass = CoreObject.extend({
-      init: function() {}
+      init: function() {},
+      baz: function() {
+        superBaz = true;
+      }
     });
 
     Klass.reopen({
       baz: function() {
-        called = true;
+        this._super();
+        bazCalled = true;
       }
     });
 
     var klass = new Klass();
     klass.baz();
     
-    assert.ok(klass.__proto__.baz);
-    assert.ok(called);
+    assert.ok(superBaz);
+    assert.ok(bazCalled);
   });
 });

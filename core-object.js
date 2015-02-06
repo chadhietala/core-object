@@ -6,6 +6,10 @@ function CoreObject(options) {
   this.init(options);
 }
 
+CoreObject.prototype.constructor = CoreObject;
+CoreObject.__instanceMixin__ = {};
+CoreObject.__protoMixin__ = {};
+
 CoreObject.prototype.init = function(options) {
   if (options) {
     for (var key in options) {
@@ -16,9 +20,19 @@ CoreObject.prototype.init = function(options) {
 
 CoreObject.extend = function(options) {
   var constructor = this;
+  this.wasApplied = false;
 
   function Class() {
     var length = arguments.length;
+
+    for (var pKey in this.constructor.__protoMixin__) {
+      this.constructor.prototype[pKey] = this.constructor.__protoMixin__[pKey];
+    }
+
+    for (var iKey in this.constructor.__instanceMixin__) {
+      this[iKey] = this.constructor.__instanceMixin__[iKey];
+      this.wasApplied = true;
+    }
 
     if (length === 0)      this.init();
     else if (length === 1) this.init(arguments[0]);
@@ -28,14 +42,18 @@ CoreObject.extend = function(options) {
   Class.__proto__ = CoreObject;
 
   Class.prototype = Object.create(constructor.prototype);
-  if (options) assignProperties(Class.prototype, options);
+  if (options) assignProperties(Class, options);
 
   return Class;
 };
 
 CoreObject.reopen = function(options) {
+  if (this.wasApplied) {
+    throw Error('Cannot reopen class');
+  }
+
   if (options) {
-    assignProperties(this.prototype, options);
+    assignProperties(this, options);
   }
 };
 /* global define:true module:true window: true */
