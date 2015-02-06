@@ -33,6 +33,11 @@ CoreObject.extend = function(options) {
   return Class;
 };
 
+CoreObject.reopen = function(options) {
+  if (options) {
+    assignProperties(this.prototype, options);
+  }
+};
 /* global define:true module:true window: true */
 if (typeof define === 'function' && define['amd'])      { define(function() { return CoreObject; }); } 
 if (typeof module !== 'undefined' && module['exports']) { module['exports'] = CoreObject; } 
