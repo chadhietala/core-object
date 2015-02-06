@@ -2,6 +2,10 @@
 
 var assignProperties = require('./lib/assign-properties');
 
+function makeCtor() {
+
+}
+
 function CoreObject(options) {
   this.init(options);
 }
@@ -19,31 +23,39 @@ CoreObject.prototype.init = function(options) {
 };
 
 CoreObject.extend = function(options) {
-  var constructor = this;
-  this.wasApplied = false;
-
   function Class() {
     var length = arguments.length;
+    var constructor = this.constructor;
 
-    for (var pKey in this.constructor.__protoMixin__) {
-      this.constructor.prototype[pKey] = this.constructor.__protoMixin__[pKey];
+    if (!constructor.wasApplied) {
+      for (var key in constructor.__protoMixin__) {
+        constructor.prototype[key] = constructor.__protoMixin__[key];
+      }
+      constructor.wasApplied = true;
     }
 
-    for (var iKey in this.constructor.__instanceMixin__) {
-      this[iKey] = this.constructor.__instanceMixin__[iKey];
-      this.wasApplied = true;
+    for (var key in constructor.__instanceMixin__) {
+      this[key] = constructor.__instanceMixin__[key];
     }
 
-    if (length === 0)      this.init();
-    else if (length === 1) this.init(arguments[0]);
-    else                   this.init.apply(this, arguments);
+    if (length === 0) {
+      this.init();
+    } else if (length === 1) {
+      this.init(arguments[0]);
+    } else {
+      this.init.apply(this, arguments);
+    }
+
   }
-
+    
+  Class.__protoMixin__ = {};
+  Class.__instanceMixin__ = {};
   Class.__proto__ = CoreObject;
 
-  Class.prototype = Object.create(constructor.prototype);
-  if (options) assignProperties(Class, options);
 
+  Class.prototype = Object.create(this.prototype);
+  Class.prototype.constructor = Class;
+  if (options) assignProperties(Class, options);
   return Class;
 };
 
