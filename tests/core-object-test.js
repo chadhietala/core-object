@@ -48,7 +48,7 @@ describe('core-object.js', function() {
         fooCalled = true;
       }
     });
-
+    
     var Klass2 = Klass1.extend({
       bar: function() {
         barCalled = true;
