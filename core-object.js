@@ -47,8 +47,9 @@ function makeCtor() {
   return Class;
 }
 
-var CoreObject = makeCtor();
-
+function CoreObject(options) {
+  this.init(options);
+}
 
 CoreObject.prototype.init = function(options) {
   if (options) {
@@ -61,10 +62,10 @@ CoreObject.prototype.init = function(options) {
 CoreObject.extend = function(options) {
   var constructor = this;
   var Class = makeCtor();
-  var proto = preparePrototype(constructor.prototype, constructor.__protoMixin__);
+  if (options) assignProperties(Class, options);
+  var proto = preparePrototype(constructor.prototype, options);
   Class.prototype = Object.create(proto);
   Class.__proto__ = constructor;
-  if (options) assignProperties(Class, options);
   return Class;
 };
 

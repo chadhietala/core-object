@@ -65,7 +65,7 @@ describe('core-object.js', function() {
 
   describe('init', function(){
 
-    it.only('init is called with the arguments to new', function() {
+    it('init is called with the arguments to new', function() {
       var called = false;
 
       var Klass = CoreObject.extend({
