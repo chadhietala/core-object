@@ -39,7 +39,7 @@ describe('core-object.js', function() {
     assert.equal(called, 'instance.foo');
   });
 
-  it.only('an extended class can be extended with functions to add to the new class', function() {
+  it('an extended class can be extended with functions to add to the new class', function() {
     var fooCalled = false;
     var barCalled = false;
 
