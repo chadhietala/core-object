@@ -2,14 +2,23 @@
 
 var assignProperties = require('./lib/assign-properties');
 
+function preparePrototype(a,b) {
+  var obj = {};
+  for(var key in a) {
+    obj[key] = a[key] 
+  }
+  for(var key in b) {
+    obj[key] = b[key] 
+  }
+  return obj;
+}
+
 function makeCtor() {
 
   function Class() {
     var length = arguments.length;
     var constructor = this.constructor;
 
-    console.log(constructor.__instanceMixin__);
-    console.log(constructor.__protoMixin__);
     if (!constructor.wasApplied) {
       for (var key in constructor.__protoMixin__) {
         constructor.prototype[key] = constructor.__protoMixin__[key];
@@ -52,9 +61,8 @@ CoreObject.prototype.init = function(options) {
 CoreObject.extend = function(options) {
   var constructor = this;
   var Class = makeCtor();
-  var proto = {};
-
-  Class.prototype = Object.create(constructor.prototype);
+  var proto = preparePrototype(constructor.prototype, constructor.__protoMixin__);
+  Class.prototype = Object.create(proto);
   Class.__proto__ = constructor;
   if (options) assignProperties(Class, options);
   return Class;
